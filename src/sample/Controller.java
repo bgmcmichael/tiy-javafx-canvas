@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ResourceBundle;
@@ -26,29 +27,45 @@ public class Controller implements Initializable {
     TextField todoText;
 
     ObservableList<ToDoItem> todoItems = FXCollections.observableArrayList();
+    ArrayList<ToDoItem> sqlList = new ArrayList<ToDoItem>();
     ArrayList<ToDoItem> savableList = new ArrayList<ToDoItem>();
+    Connection conn = DriverManager.getConnection(ToDoDatabase.DB_URL);
+    ToDoDatabase toDoDatabase = new ToDoDatabase();
     String fileName = "todos.json";
 
     public String username;
 
+    public Controller() throws SQLException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        System.out.print("Please enter your name: ");
-        Scanner inputScanner = new Scanner(System.in);
-        username = inputScanner.nextLine();
-
-        if (username != null && !username.isEmpty()) {
-            fileName = username + ".json";
+        try {
+            sqlList = ToDoDatabase.selectToDos(conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        System.out.println("Checking existing list ...");
-        ToDoItemList retrievedList = retrieveList();
-        if (retrievedList != null) {
-            for (ToDoItem item : retrievedList.todoItems) {
+        if (sqlList.size() > 0) {
+            for (ToDoItem item : sqlList) {
                 todoItems.add(item);
             }
         }
+//        System.out.print("Please enter your name: ");
+//        Scanner inputScanner = new Scanner(System.in);
+//        username = inputScanner.nextLine();
+//
+//        if (username != null && !username.isEmpty()) {
+//            fileName = username + ".json";
+//        }
+//
+//        System.out.println("Checking existing list ...");
+//        ToDoItemList retrievedList = retrieveList();
+//        if (retrievedList != null) {
+//            for (ToDoItem item : retrievedList.todoItems) {
+//                todoItems.add(item);
+//            }
+//        }
 
         todoList.setItems(todoItems);
     }
@@ -66,7 +83,13 @@ public class Controller implements Initializable {
 
     public void addItem() {
         System.out.println("Adding item ...");
-        todoItems.add(new ToDoItem(todoText.getText()));
+        ToDoItem item = new ToDoItem(todoText.getText());
+        todoItems.add(item);
+        try {
+            toDoDatabase.insertToDo(conn, item.text);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         todoText.setText("");
     }
 
@@ -74,6 +97,11 @@ public class Controller implements Initializable {
         ToDoItem todoItem = (ToDoItem)todoList.getSelectionModel().getSelectedItem();
         System.out.println("Removing " + todoItem.text + " ...");
         todoItems.remove(todoItem);
+        try {
+            toDoDatabase.deleteToDo(conn, todoItem.text);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void toggleItem() {
@@ -83,6 +111,16 @@ public class Controller implements Initializable {
             todoItem.isDone = !todoItem.isDone;
             todoList.setItems(null);
             todoList.setItems(todoItems);
+        }
+        try {
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos where text = '" + todoItem.text + "'");
+            ResultSet results = stmt.executeQuery();
+            while (results.next()) {
+                System.out.println(results.getInt("id"));
+                toDoDatabase.toggleToDo(conn, results.getInt("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
