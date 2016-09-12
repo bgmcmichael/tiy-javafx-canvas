@@ -34,12 +34,12 @@ public class SampleFXMLApp extends Application {
         primaryStage.setTitle("TIY ToDo App");
         primaryStage.setScene(new Scene(root, 800, 600));
 
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent we) {
-                System.out.println("Stage is closing -> saving the todo list! ");
-                controller.saveList();
-            }
-        });
+//        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+//            public void handle(WindowEvent we) {
+//                System.out.println("Stage is closing -> saving the todo list! ");
+//                controller.saveList();
+//            }
+//        });
 
         primaryStage.show();
     }

@@ -87,7 +87,6 @@ public class ToDoDatabaseTest {
         todoDatabase.insertToDo(conn, secondToDoText);
 
         ArrayList<ToDoItem> todos = todoDatabase.selectToDos(conn);
-        System.out.println("Found " + todos.size() + " todos in the database");
 
         assertTrue("There should be at least 2 todos in the database (there are " +
                 todos.size() + ")", todos.size() > 1);
@@ -98,15 +97,24 @@ public class ToDoDatabaseTest {
 
     @Test
     public void testToggleToDo() throws Exception {
+        //(id IDENTITY, text VARCHAR, is_done BOOLEAN)
+        int id = 0;
+        boolean isDone = false;
         Connection conn = DriverManager.getConnection("jdbc:h2:./main");
         String firstToDoText = "UnitTest-ToDo1";
         todoDatabase.insertToDo(conn, firstToDoText);
-        todoDatabase.toggleToDo(conn, 0);
-        PreparedStatement stmt = conn.prepareStatement("SELECT is_done FROM todos where text = 'UnitTest-ToDo1'");
-        ToDoItem item = stmt.execute();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos where text = 'UnitTest-ToDo1'");
+        ResultSet results = stmt.executeQuery();
+        while (results.next()) {
+            id = results.getInt("id");
+            todoDatabase.toggleToDo(conn, id);
+        }
+        results = stmt.executeQuery();
+        while (results.next()){
+            isDone = results.getBoolean("is_done");
+        }
 
-
-        assertTrue(todos.get(0).isDone);
+        assertTrue(isDone);
         todoDatabase.deleteToDo(conn, firstToDoText);
     }
 }

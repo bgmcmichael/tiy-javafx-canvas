@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.collections.ObservableList;
 import org.h2.tools.Server;
 
 import java.sql.*;
@@ -7,6 +8,8 @@ import java.util.ArrayList;
 
 public class ToDoDatabase {
     public final static String DB_URL = "jdbc:h2:./main";
+    ArrayList<ToDoItem> items = null;
+    ObservableList<ToDoItem> todoItems = null;
 
 
     public void init() throws SQLException {

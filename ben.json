@@ -1,1 +1,1 @@
-{"todoItems":[{"isDone":false,"text":"ljhsdf"},{"isDone":true,"text":";lkjasd"},{"isDone":false,"text":";lkasjd"},{"isDone":false,"text":";lkjasd"}]}
+{"todoItems":[{"id":0,"isDone":false,"text":"ljhsdf"},{"id":0,"isDone":false,"text":";lkjasd"},{"id":0,"isDone":true,"text":";lkasjd"},{"id":0,"isDone":false,"text":";lkjasd"}]}
